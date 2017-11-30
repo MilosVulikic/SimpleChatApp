@@ -1,5 +1,6 @@
 ﻿/**************************************************
- *                  Simple server 
+ *               Simple server - Server
+ *               
  * This project is made in process of learning about threads and socket implementation.
  * Here are the steps I have taken in the process of creating this app.
  * 
