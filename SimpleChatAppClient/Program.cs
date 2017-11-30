@@ -7,8 +7,11 @@
  * 1) Implementing the initial part of Server
  * 2) Creating Client
  * 3) Connecting the Client
- * 4) Network stream
- *
+ * 4) Network stream Sending data
+ * 5) (Server broadcast)
+ * 6) Thread for receiving broadcasted data
+ * 7) NetworkStream for receiving data
+ * 8) Client Socket Shutdown
  * 
  * ***********************************************/
 
@@ -34,10 +37,10 @@ namespace SimpleChatAppClient
             TcpClient client = new TcpClient();
             client.Connect(ip, port);
             Console.WriteLine("Conected to the server: {0} , port {1}", ip, port);
-            NetworkStream networkStream = client.GetStream();          
-
-
-
+            NetworkStream networkStream = client.GetStream();
+           
+            Thread thread = new Thread(new ParameterizedThreadStart(ReceiveData));
+            thread.Start((object)client);   
 
             string messageToSend;
             while (!string.IsNullOrEmpty((messageToSend = Console.ReadLine())))
@@ -45,26 +48,27 @@ namespace SimpleChatAppClient
                 byte[] buffer = Encoding.ASCII.GetBytes(messageToSend);
                 networkStream.Write(buffer, 0, buffer.Length);
             }
+
+            client.Client.Shutdown(SocketShutdown.Send);
             networkStream.Close();
             client.Close();
             Console.WriteLine("Disconnecting from server...");
             Console.ReadKey();
         }
 
+        static void ReceiveData(object client)
+        {
+            TcpClient tcpClient = (TcpClient)client;
+            NetworkStream networkStream = tcpClient.GetStream();
+            byte[] receivedByteData = new byte[1024];
+            int receivedDataSize;
 
+            while ((receivedDataSize = networkStream.Read(receivedByteData,0,receivedByteData.Length)) >0)
+            {
+                Console.WriteLine(Encoding.ASCII.GetString(receivedByteData,0,receivedDataSize));
+            }
 
-
-
-
-
-
-
-
-
-
-
-
-
+        }
 
 
 

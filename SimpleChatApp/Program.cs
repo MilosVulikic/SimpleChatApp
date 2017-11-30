@@ -16,7 +16,7 @@
  *  - Network streaming - receiving data
  *  - (Client app - Network streaming - sending data)
  * 5 Provide the method that handles broadcasting
- *  
+ * 6 Client Socket Shutdown 
  *
  * 
  * ***********************************************/
@@ -50,7 +50,7 @@ namespace SimpleChatApp
                 Console.WriteLine("Client connected!");
                 HandleClients(client);
                 clientCount++;
-                Console.WriteLine("Thread started");
+               
             }
 
 
@@ -70,12 +70,22 @@ namespace SimpleChatApp
                 int bufferNoOfBytes = stream.Read(buffer, 0,buffer.Length);
                 if (bufferNoOfBytes == 0) break;
                 string data = Encoding.ASCII.GetString(buffer, 0, bufferNoOfBytes);
-                Console.WriteLine(data);    
+                Broadcast(data, obj);
+                Console.WriteLine(data);
                 // Broadcast
+               
             }
-
+            client.Client.Shutdown(SocketShutdown.Both);
+            Console.WriteLine("Client disconnected...");
+            client.Close();
         }
 
-     
+        public static void Broadcast(string data, TcpClient obj)
+        {
+            byte[] buffer = Encoding.ASCII.GetBytes(data + Environment.NewLine);
+
+            NetworkStream stream = obj.GetStream();
+            stream.Write(buffer,0,buffer.Length);
+        }
     }
 }
