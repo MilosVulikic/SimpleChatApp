@@ -17,8 +17,13 @@
  *  - (Client app - Network streaming - sending data)
  * 5 Provide the method that handles broadcasting
  * 6 Client Socket Shutdown 
- *
- * 
+ * ***********************************************
+ * To be added: 
+ *      Anable multiple client functionality
+ *      Thread on server
+ *      List of clients in dictionary or array
+ *      Lock for the thread
+ *      
  * ***********************************************/
 
 using System;

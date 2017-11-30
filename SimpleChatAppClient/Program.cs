@@ -12,6 +12,10 @@
  * 6) Thread for receiving broadcasted data
  * 7) NetworkStream for receiving data
  * 8) Client Socket Shutdown
+ * ***********************************************
+ *  To be added: 
+ *      Small corrections to meet the server changes
+ *      
  * 
  * ***********************************************/
 
