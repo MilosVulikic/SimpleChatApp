@@ -19,7 +19,7 @@
  * 6 Client Socket Shutdown 
  * ***********************************************
  * To be added: 
- *      Anable multiple client functionality
+ *      Enable multiple client functionality
  *      Thread on server
  *      List of clients in dictionary or array
  *      Lock for the thread
