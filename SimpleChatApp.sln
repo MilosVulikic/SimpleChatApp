@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.27004.2010
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleChatApp", "SimpleChatApp\SimpleChatApp.csproj", "{1E39D3F3-34FC-4FFD-AF2F-19C61A98523B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleChatAppClient", "SimpleChatAppClient\SimpleChatAppClient.csproj", "{9F547C42-D390-40A6-9E5B-6E69ABCAD824}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{1E39D3F3-34FC-4FFD-AF2F-19C61A98523B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1E39D3F3-34FC-4FFD-AF2F-19C61A98523B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1E39D3F3-34FC-4FFD-AF2F-19C61A98523B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9F547C42-D390-40A6-9E5B-6E69ABCAD824}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F547C42-D390-40A6-9E5B-6E69ABCAD824}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9F547C42-D390-40A6-9E5B-6E69ABCAD824}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9F547C42-D390-40A6-9E5B-6E69ABCAD824}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
