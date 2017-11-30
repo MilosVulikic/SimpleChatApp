@@ -32,20 +32,42 @@ namespace SimpleChatAppClient
             var port = 8888;
             IPAddress ip = IPAddress.Parse("127.0.0.1");
             TcpClient client = new TcpClient();
-            
-            // Connecting the Client
-            try
-            {
-                client.Connect(ip, port);
-                Console.WriteLine("Conected to the server: {0} , port {1}", ip, port);
-            }
-            catch (Exception)
-            {
-                Console.WriteLine("No response from server");
-            }
+            client.Connect(ip, port);
+            Console.WriteLine("Conected to the server: {0} , port {1}", ip, port);
+            NetworkStream networkStream = client.GetStream();          
 
 
+
+
+            string messageToSend;
+            while (!string.IsNullOrEmpty((messageToSend = Console.ReadLine())))
+            {
+                byte[] buffer = Encoding.ASCII.GetBytes(messageToSend);
+                networkStream.Write(buffer, 0, buffer.Length);
+            }
+            networkStream.Close();
+            client.Close();
+            Console.WriteLine("Disconnecting from server...");
             Console.ReadKey();
         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
     }
 }
