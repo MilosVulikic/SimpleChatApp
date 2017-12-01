@@ -44,7 +44,7 @@ namespace SimpleChatAppClient
             NetworkStream networkStream = client.GetStream();
            
             Thread thread = new Thread(new ParameterizedThreadStart(ReceiveData));
-            thread.Start((object)client);   
+            thread.Start(client);   
 
             string messageToSend;
             while (!string.IsNullOrEmpty((messageToSend = Console.ReadLine())))
@@ -53,7 +53,7 @@ namespace SimpleChatAppClient
                 networkStream.Write(buffer, 0, buffer.Length);
             }
 
-            client.Client.Shutdown(SocketShutdown.Send);
+            client.Client.Shutdown(SocketShutdown.Send);            
             networkStream.Close();
             client.Close();
             Console.WriteLine("Disconnecting from server...");

@@ -39,6 +39,8 @@ namespace SimpleChatApp
 {
     class Server
     {
+        static readonly Dictionary<int, TcpClient> clientTable = new Dictionary<int,TcpClient>();
+
         static void Main(string[] args)
         {
             int clientCount = 1;
@@ -52,8 +54,11 @@ namespace SimpleChatApp
             while (true)
             {
                 TcpClient client = ServerSocket.AcceptTcpClient();
+                clientTable.Add(clientCount,client);
                 Console.WriteLine("Client connected!");
-                HandleClients(client);
+
+                Thread clientThread = new Thread(HandleClients);
+                clientThread.Start(clientCount);
                 clientCount++;
                
             }
@@ -63,34 +68,37 @@ namespace SimpleChatApp
 
 
 
-        public static void HandleClients(TcpClient obj)  
+        public static void HandleClients(object obj)  
         {
-            TcpClient client = obj; 
+            int clientID = (int)obj;
+            TcpClient client;
+            client = clientTable[clientID];
 
             while (true)
-            {
-  
+            {             
                 NetworkStream stream = client.GetStream();
                 byte[] buffer = new byte[1024];
                 int bufferNoOfBytes = stream.Read(buffer, 0,buffer.Length);
                 if (bufferNoOfBytes == 0) break;
                 string data = Encoding.ASCII.GetString(buffer, 0, bufferNoOfBytes);
-                Broadcast(data, obj);
-                Console.WriteLine(data);
-                // Broadcast
+                Broadcast(data);
+                Console.WriteLine(data);              
                
             }
+            clientTable.Remove(clientID);
             client.Client.Shutdown(SocketShutdown.Both);
             Console.WriteLine("Client disconnected...");
             client.Close();
         }
 
-        public static void Broadcast(string data, TcpClient obj)
+        public static void Broadcast(string data)
         {
             byte[] buffer = Encoding.ASCII.GetBytes(data + Environment.NewLine);
-
-            NetworkStream stream = obj.GetStream();
-            stream.Write(buffer,0,buffer.Length);
+            foreach(TcpClient client in clientTable.Values)
+            { 
+                NetworkStream stream = client.GetStream();
+                stream.Write(buffer,0,buffer.Length);
+            }
         }
     }
 }
