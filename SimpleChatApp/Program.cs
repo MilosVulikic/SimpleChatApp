@@ -17,12 +17,18 @@
  *  - (Client app - Network streaming - sending data)
  * 5 Provide the method that handles broadcasting
  * 6 Client Socket Shutdown 
+ * 7 Added dictionary that containes clients
+ * 8 Thread for client handling added
+ * 9 Edited HandleClient method - use dictionary data for clients
+ * 10 Edited Broadcast method - use dictionary data for clients
  * ***********************************************
  * To be added: 
- *      Enable multiple client functionality
- *      Thread on server
- *      List of clients in dictionary or array
+ *      Edit the way messages appear      
+ *      Adding names for the client
  *      Lock for the thread
+ *      See if additional changes are needed for the threads
+ *      Creating Forms for the Client
+ *      
  *      
  * ***********************************************/
 
