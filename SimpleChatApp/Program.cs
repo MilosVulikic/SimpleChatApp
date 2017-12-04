@@ -22,11 +22,8 @@
  * 9 Edited HandleClient method - use dictionary data for clients
  * 10 Edited Broadcast method - use dictionary data for clients
  * ***********************************************
- * To be added: 
- *      Edit the way messages appear      
- *      Adding names for the client
- *      Lock for the thread
- *      See if additional changes are needed for the threads
+ * To be added:     
+ *      See if additional changes are needed for the threads and possible locks
  *      Creating Forms for the Client
  *      
  *      
@@ -51,18 +48,17 @@ namespace SimpleChatApp
         {
             int clientCount = 1;
             var port = 8888;
-            TcpListener ServerSocket = new TcpListener(IPAddress.Any, port);
-            
+            TcpListener ServerSocket = new TcpListener(IPAddress.Any, port);           
             ServerSocket.Start();
-            Console.WriteLine("Server started and listening for clients...");
+            Thread serverListeningMessageThread = new Thread(ServerListeningMessage);
+            serverListeningMessageThread.Start();
 
 
             while (true)
             {
-                TcpClient client = ServerSocket.AcceptTcpClient();
+                TcpClient client = ServerSocket.AcceptTcpClient();         
                 clientTable.Add(clientCount,client);
                 Console.WriteLine("Client connected!");
-
                 Thread clientThread = new Thread(HandleClients);
                 clientThread.Start(clientCount);
                 clientCount++;
@@ -81,21 +77,22 @@ namespace SimpleChatApp
             client = clientTable[clientID];
 
             while (true)
-            {             
+            {
                 NetworkStream stream = client.GetStream();
                 byte[] buffer = new byte[1024];
-                int bufferNoOfBytes = stream.Read(buffer, 0,buffer.Length);
+                int bufferNoOfBytes = stream.Read(buffer, 0, buffer.Length);
                 if (bufferNoOfBytes == 0) break;
                 string data = Encoding.ASCII.GetString(buffer, 0, bufferNoOfBytes);
                 Broadcast(data);
-                Console.WriteLine(data);              
-               
+                Console.WriteLine(data);
+
             }
             clientTable.Remove(clientID);
-            client.Client.Shutdown(SocketShutdown.Both);
+            client.Client.Shutdown(SocketShutdown.Both);           
             Console.WriteLine("Client disconnected...");
             client.Close();
         }
+
 
         public static void Broadcast(string data)
         {
@@ -106,5 +103,27 @@ namespace SimpleChatApp
                 stream.Write(buffer,0,buffer.Length);
             }
         }
+
+
+
+
+
+        static void ServerListeningMessage()   
+        {
+            int i = 0;
+            string connectingInfo = "Server started and listening for clients";
+            while (true)
+            {
+                if (i > 3) { i = 0; connectingInfo = "Server started and listening for clients"; Console.CursorVisible = false; Console.Write("\r{0}     ", connectingInfo); }
+                else if (i == 0) { Console.Write("\r{0}     ", connectingInfo); }
+                else if (i >= 1 && i <= 3) { Console.Write("\r{0}     ", connectingInfo += "."); }
+                i++;
+                Thread.Sleep(500);
+                if (clientTable.Count != 0) { break; }// if client exist kill the thread
+            }
+        }
+
     }
+
+
 }

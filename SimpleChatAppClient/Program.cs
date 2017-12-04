@@ -14,7 +14,7 @@
  * 8) Client Socket Shutdown
  * ***********************************************
  *  To be added: 
- *      Small corrections to meet the server changes
+ *      Form
  *      
  * 
  * ***********************************************/
@@ -39,8 +39,9 @@ namespace SimpleChatAppClient
             var port = 8888;
             IPAddress ip = IPAddress.Parse("127.0.0.1");
             TcpClient client = new TcpClient();
-            client.Connect(ip, port);
-            Console.WriteLine("Conected to the server: {0} , port {1}", ip, port);
+            Console.Write("Please enter your chat name: ");
+            string clientName = Console.ReadLine();            
+            ConnectingClient(client,ip,port);
             NetworkStream networkStream = client.GetStream();
            
             Thread thread = new Thread(new ParameterizedThreadStart(ReceiveData));
@@ -48,8 +49,8 @@ namespace SimpleChatAppClient
 
             string messageToSend;
             while (!string.IsNullOrEmpty((messageToSend = Console.ReadLine())))
-            {
-                byte[] buffer = Encoding.ASCII.GetBytes(messageToSend);
+            {               
+                byte[] buffer = Encoding.ASCII.GetBytes(clientName + ": " + messageToSend);
                 networkStream.Write(buffer, 0, buffer.Length);
             }
 
@@ -69,13 +70,35 @@ namespace SimpleChatAppClient
 
             while ((receivedDataSize = networkStream.Read(receivedByteData,0,receivedByteData.Length)) >0)
             {
-                Console.WriteLine(Encoding.ASCII.GetString(receivedByteData,0,receivedDataSize));
+                Console.Write(Encoding.ASCII.GetString(receivedByteData,0,receivedDataSize));
             }
 
         }
 
 
-
       
+        static void ConnectingClient(TcpClient client, IPAddress ip, int port)
+        {           
+            string[] connectingInfo = new string[4];
+            connectingInfo[0] = "Connecting to the server";
+            connectingInfo[1] = "Connecting to the server.";
+            connectingInfo[2] = "Connecting to the server..";
+            connectingInfo[3] = "Connecting to the server...";
+            Random rnd = new Random();
+            int waitingTime = rnd.Next(1, 3) * connectingInfo.Length + 1;
+
+            for (int i = 1; i < waitingTime; ++i)       // network lag imitation  
+            {               
+                if (i <= connectingInfo.Length) Console.Write("\r{0}    ", connectingInfo[i - 1]);
+                if (i > connectingInfo.Length && i <= connectingInfo.Length * 2) Console.Write("\r{0}    ", connectingInfo[i - connectingInfo.Length - 1]);
+                else if (i > connectingInfo.Length * 2) Console.Write("\r{0}    ", connectingInfo[i - connectingInfo.Length * 2 - 1]);
+                Thread.Sleep(500);
+            }
+
+            client.Connect(ip, port);
+            Console.WriteLine("\rConected to the server: {0} , port {1}     ", ip, port);
+        }
+
+
     }
 }
