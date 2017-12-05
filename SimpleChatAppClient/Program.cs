@@ -34,11 +34,13 @@ namespace SimpleChatAppClient
 {
     class Program
     {
-        static void Main(string[] args)
+
+        static void Main()
         {
+
             var port = 8888;
             IPAddress ip = IPAddress.Parse("127.0.0.1");
-            TcpClient client = new TcpClient();
+            TcpClient client = new TcpClient();            
             Console.Write("Please enter your chat name: ");
             string clientName = Console.ReadLine();            
             ConnectingClient(client,ip,port);
@@ -77,7 +79,7 @@ namespace SimpleChatAppClient
 
 
       
-        static void ConnectingClient(TcpClient client, IPAddress ip, int port)
+        public static void ConnectingClient(TcpClient client, IPAddress ip, int port)
         {           
             string[] connectingInfo = new string[4];
             connectingInfo[0] = "Connecting to the server";
@@ -87,7 +89,7 @@ namespace SimpleChatAppClient
             Random rnd = new Random();
             int waitingTime = rnd.Next(1, 3) * connectingInfo.Length + 1;
 
-            for (int i = 1; i < waitingTime; ++i)       // network lag imitation  
+            for (int i = 1; i < waitingTime; ++i)       // mock network lag 
             {               
                 if (i <= connectingInfo.Length) Console.Write("\r{0}    ", connectingInfo[i - 1]);
                 if (i > connectingInfo.Length && i <= connectingInfo.Length * 2) Console.Write("\r{0}    ", connectingInfo[i - connectingInfo.Length - 1]);
@@ -95,8 +97,19 @@ namespace SimpleChatAppClient
                 Thread.Sleep(500);
             }
 
-            client.Connect(ip, port);
-            Console.WriteLine("\rConected to the server: {0} , port {1}     ", ip, port);
+
+            try
+            {
+                client.Connect(ip, port);
+                Console.WriteLine("\rConected to the server: {0} , port {1}     ", ip, port);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("No response from server...");
+                Console.WriteLine(ex.ToString());
+            }
+            
+
         }
 
 
