@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmClient));
             this.txtServerPort = new System.Windows.Forms.TextBox();
             this.lblServerPort = new System.Windows.Forms.Label();
             this.txtServerIP = new System.Windows.Forms.TextBox();
@@ -39,11 +40,13 @@
             this.btnMessageSend = new System.Windows.Forms.Button();
             this.btnClientName = new System.Windows.Forms.Button();
             this.btnServerConnect = new System.Windows.Forms.Button();
+            this.pictBoxLogo = new System.Windows.Forms.PictureBox();
+            ((System.ComponentModel.ISupportInitialize)(this.pictBoxLogo)).BeginInit();
             this.SuspendLayout();
             // 
             // txtServerPort
             // 
-            this.txtServerPort.Location = new System.Drawing.Point(277, 29);
+            this.txtServerPort.Location = new System.Drawing.Point(272, 29);
             this.txtServerPort.Name = "txtServerPort";
             this.txtServerPort.Size = new System.Drawing.Size(100, 20);
             this.txtServerPort.TabIndex = 22;
@@ -51,7 +54,7 @@
             // lblServerPort
             // 
             this.lblServerPort.AutoSize = true;
-            this.lblServerPort.Location = new System.Drawing.Point(211, 32);
+            this.lblServerPort.Location = new System.Drawing.Point(206, 32);
             this.lblServerPort.Name = "lblServerPort";
             this.lblServerPort.Size = new System.Drawing.Size(63, 13);
             this.lblServerPort.TabIndex = 21;
@@ -100,7 +103,7 @@
             // 
             this.txtClientName.Location = new System.Drawing.Point(111, 87);
             this.txtClientName.Name = "txtClientName";
-            this.txtClientName.Size = new System.Drawing.Size(266, 20);
+            this.txtClientName.Size = new System.Drawing.Size(261, 20);
             this.txtClientName.TabIndex = 16;
             // 
             // txtMessageSend
@@ -122,7 +125,7 @@
             // 
             // btnClientName
             // 
-            this.btnClientName.Location = new System.Drawing.Point(383, 85);
+            this.btnClientName.Location = new System.Drawing.Point(378, 85);
             this.btnClientName.Name = "btnClientName";
             this.btnClientName.Size = new System.Drawing.Size(75, 23);
             this.btnClientName.TabIndex = 13;
@@ -132,7 +135,7 @@
             // 
             // btnServerConnect
             // 
-            this.btnServerConnect.Location = new System.Drawing.Point(383, 27);
+            this.btnServerConnect.Location = new System.Drawing.Point(378, 27);
             this.btnServerConnect.Name = "btnServerConnect";
             this.btnServerConnect.Size = new System.Drawing.Size(75, 23);
             this.btnServerConnect.TabIndex = 12;
@@ -140,11 +143,26 @@
             this.btnServerConnect.UseVisualStyleBackColor = true;
             this.btnServerConnect.Click += new System.EventHandler(this.btnServerConnect_Click);
             // 
+            // pictBoxLogo
+            // 
+            this.pictBoxLogo.Image = ((System.Drawing.Image)(resources.GetObject("pictBoxLogo.Image")));
+            this.pictBoxLogo.InitialImage = ((System.Drawing.Image)(resources.GetObject("pictBoxLogo.InitialImage")));
+            this.pictBoxLogo.Location = new System.Drawing.Point(470, 24);
+            this.pictBoxLogo.Name = "pictBoxLogo";
+            this.pictBoxLogo.Size = new System.Drawing.Size(110, 63);
+            this.pictBoxLogo.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
+            this.pictBoxLogo.TabIndex = 23;
+            this.pictBoxLogo.TabStop = false;
+            this.pictBoxLogo.Click += new System.EventHandler(this.pictBoxLogo_Click);
+            // 
             // frmClient
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("$this.BackgroundImage")));
+            this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.ClientSize = new System.Drawing.Size(598, 443);
+            this.Controls.Add(this.pictBoxLogo);
             this.Controls.Add(this.txtServerPort);
             this.Controls.Add(this.lblServerPort);
             this.Controls.Add(this.txtServerIP);
@@ -158,6 +176,7 @@
             this.Controls.Add(this.btnServerConnect);
             this.Name = "frmClient";
             this.Text = "Client";
+            ((System.ComponentModel.ISupportInitialize)(this.pictBoxLogo)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -176,6 +195,7 @@
         private System.Windows.Forms.Button btnMessageSend;
         private System.Windows.Forms.Button btnClientName;
         private System.Windows.Forms.Button btnServerConnect;
+        private System.Windows.Forms.PictureBox pictBoxLogo;
     }
 }
 
