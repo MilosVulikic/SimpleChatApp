@@ -37,6 +37,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
+using System.IO;
 
 namespace SimpleChatApp
 {
@@ -47,22 +48,30 @@ namespace SimpleChatApp
         static void Main(string[] args)
         {
             int clientCount = 1;
-            var port = 8888;
+            var port = 8888;                        
             TcpListener ServerSocket = new TcpListener(IPAddress.Any, port);           
             ServerSocket.Start();
-            Thread serverListeningMessageThread = new Thread(ServerListeningMessage);
-            serverListeningMessageThread.Start();
+            Thread serverListeningMessageOnDisplayThread = new Thread(ServerListeningMessageOnDisplay);
+            serverListeningMessageOnDisplayThread.Start();
 
 
             while (true)
             {
-                TcpClient client = ServerSocket.AcceptTcpClient();         
-                clientTable.Add(clientCount,client);
-                Console.WriteLine("Client connected!");
-                Thread clientThread = new Thread(HandleClients);
-                clientThread.Start(clientCount);
-                clientCount++;
-               
+                try
+                {
+                    TcpClient client = ServerSocket.AcceptTcpClient();
+                    clientTable.Add(clientCount, client);
+                    WriteMessageLog("Client connected!");
+                    Console.WriteLine("Client connected!");
+                    Thread clientThread = new Thread(HandleClients);
+                    clientThread.Start(clientCount);
+                    clientCount++;
+                }
+                catch (Exception ex)
+                {
+                    Error.WriteErrorLog(ex);
+                }
+              
             }
 
 
@@ -70,45 +79,84 @@ namespace SimpleChatApp
 
 
 
-        public static void HandleClients(object obj)  
+        public static void HandleClients(object obj)
         {
-            int clientID = (int)obj;
-            TcpClient client;
-            client = clientTable[clientID];
-
-            while (true)
+            try
             {
-                NetworkStream stream = client.GetStream();
-                byte[] buffer = new byte[1024];
-                int bufferNoOfBytes = stream.Read(buffer, 0, buffer.Length);
-                if (bufferNoOfBytes == 0) break;
-                string data = Encoding.ASCII.GetString(buffer, 0, bufferNoOfBytes);
-                Broadcast(data);
-                Console.WriteLine(data);
+                int clientID = (int)obj;
+                TcpClient client;
+                client = clientTable[clientID];
 
+                while (true)
+                {
+                    try
+                    {
+                        NetworkStream stream = client.GetStream();
+                        byte[] buffer = new byte[1024];
+                        int bufferNoOfBytes = stream.Read(buffer, 0, buffer.Length);
+                        if (bufferNoOfBytes == 0) break;
+                        string data = Encoding.ASCII.GetString(buffer, 0, bufferNoOfBytes);
+                        Broadcast(data);
+                        WriteMessageLog(data);
+                        Console.WriteLine(data);
+                    }
+                    catch (Exception ex)
+                    {
+                        Error.WriteErrorLog(ex);
+                    }
+                }
+                clientTable.Remove(clientID);
+                client.Client.Shutdown(SocketShutdown.Both);
+                WriteMessageLog("Client disconnected...");
+                Console.WriteLine("Client disconnected...");
+                client.Close();
             }
-            clientTable.Remove(clientID);
-            client.Client.Shutdown(SocketShutdown.Both);           
-            Console.WriteLine("Client disconnected...");
-            client.Close();
+            catch (Exception ex)
+            {
+                Error.WriteErrorLog(ex);
+            }
         }
 
 
         public static void Broadcast(string data)
         {
-            byte[] buffer = Encoding.ASCII.GetBytes(data + Environment.NewLine);
-            foreach(TcpClient client in clientTable.Values)
-            { 
-                NetworkStream stream = client.GetStream();
-                stream.Write(buffer,0,buffer.Length);
+            try
+            {
+                byte[] buffer = Encoding.ASCII.GetBytes(data + Environment.NewLine);
+                foreach (TcpClient client in clientTable.Values)
+                {
+                    NetworkStream stream = client.GetStream();
+                    stream.Write(buffer, 0, buffer.Length);
+                }
             }
+            catch (Exception ex)
+            {
+                Error.WriteErrorLog(ex);
+            }
+ 
         }
 
 
 
 
+        public static void WriteMessageLog(string message)
+        {
+            StreamWriter logChatMessageSW = null;
+            try
+            {
+                logChatMessageSW = new StreamWriter(AppDomain.CurrentDomain.BaseDirectory + "\\LogFileMessages.txt", true);
+                logChatMessageSW.WriteLine("[" + DateTime.Now.ToString().Trim() + "]  " + message);
+                logChatMessageSW.Flush();
+                logChatMessageSW.Close();
+            }
+            catch (Exception ex)
+            {
+                Error.WriteErrorLog(ex);                
+            }
+        }
 
-        static void ServerListeningMessage()   
+
+        static void ServerListeningMessageOnDisplay()   
         {
             int i = 0;
             string connectingInfo = "Server started and listening for clients";
@@ -126,4 +174,22 @@ namespace SimpleChatApp
     }
 
 
+}
+
+
+static class Error
+{
+    static int errorId = 0;
+    public static void WriteErrorLog(Exception message)
+    {
+        errorId++;
+        StreamWriter logChatMessageSW = null;
+        logChatMessageSW = new StreamWriter(AppDomain.CurrentDomain.BaseDirectory + "\\LogFileErrors.txt", true);
+        logChatMessageSW.WriteLine("[" + DateTime.Now.ToString().Trim() + "] [errorId]  Error message:  " + message.Message);
+        logChatMessageSW.WriteLine("[" + DateTime.Now.ToString().Trim() + "] [errorId]  Error Source:  " + message.Source);
+        logChatMessageSW.WriteLine("[" + DateTime.Now.ToString().Trim() + "] [errorId]  Target Site:  " + message.TargetSite);
+        logChatMessageSW.WriteLine("[" + DateTime.Now.ToString().Trim() + "] [errorId]  Stack Trace:  " + message.StackTrace);
+        logChatMessageSW.Flush();
+        logChatMessageSW.Close();
+    }
 }
