@@ -175,7 +175,7 @@
             this.Controls.Add(this.btnClientName);
             this.Controls.Add(this.btnServerConnect);
             this.Name = "frmClient";
-            this.Text = "Client";
+            this.Text = "Client";            
             ((System.ComponentModel.ISupportInitialize)(this.pictBoxLogo)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();

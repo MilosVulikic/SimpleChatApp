@@ -30,49 +30,42 @@ namespace SimpleChatFormClient
 
     class ClientConnector
     {
-        public bool Connected { get; set; } = false;    
-        TcpClient tcpClient;
+        public bool Connected { get; set; } = false;
+        public TcpClient Client { get; set; }
+        public Thread ReceiveDataThread { get; set; }
         IPAddress ip;
-        int port;
-        string name = "Alice";
+        int port;        
+        string name;
 
+        public string GetName() { return this.name; } 
 
-        public string GetName() { return this.name; }
-
-        public string ConnectClientInfo(TcpClient client, IPAddress ip, int port, string name)
+        public string ConnectDiconnect(IPAddress ip, int port, string name)
         {
             try
             {
-                this.tcpClient = client;
-                this.ip = ip;
-                this.port = port;
-                if (name != null || name !="")
+                if (!this.Connected)
+                {                    
+                    this.ip = ip;
+                    this.port = port;
+                    if (name != null || name != "") this.name = name;                    
+                    Client.Connect(ip, port);
+                    this.Connected = true;
+                    return "Conected to the server: " + ip + " , port: " + port;
+                }
+                else
                 {
-                    this.name = name;
-                }                
-                client.Connect(ip, port);
-                Connected = true;
-                return "Conected to the server: " + ip + " , port: " + port;
+                    this.Connected = false;
+                    this.Client.Client.Shutdown(SocketShutdown.Both);
+                    this.Client.Close();
+                    return "Disonnected from the server...";
+                }
+
             }
             catch (Exception ex)
             {
                 return "No response from server... " + ex.ToString();
             }
-        }
-
-        public string DisconnectClient(TcpClient client)
-        {
-            try
-            {
-                client.Client.Shutdown(SocketShutdown.Send);
-                client.Close();
-                return "Disconnected from the server... ";
-            }
-            catch (Exception ex)
-            {
-                return "Something went wrong... " + ex.ToString();
-            }
-        }
+        }   
     }
 
 

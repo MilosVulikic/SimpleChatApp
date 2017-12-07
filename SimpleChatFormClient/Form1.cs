@@ -12,9 +12,13 @@
  * 5) Sending message implementation and testing
  * 6) ReceiveData and PrintReceivedData in thread safe way
  * 7) Removing unused code
+ * 8) Toggle Connect/Disconnect button
+ * 9) ClientConnector class adapted to create/remove clients and threads
+ *    for newly instantiated clients
+ * 
  * ***********************************************
- * To be added:
- *      Disconnect option
+ * 
+ * 
  *      
  * 
  * ***********************************************/
@@ -40,10 +44,8 @@ namespace SimpleChatFormClient
     {
         int port;
         IPAddress ip;
-        TcpClient client = new TcpClient();        
-        ClientConnector clientConnector = new ClientConnector();
-        string clientName;        
-        
+        string clientName;
+        ClientConnector clientConnector = new ClientConnector();            
 
         public frmClient()
         {
@@ -65,6 +67,8 @@ namespace SimpleChatFormClient
         {
             if (!string.IsNullOrEmpty(txtClientName.Text) || !string.IsNullOrWhiteSpace(txtClientName.Text))
             {
+                btnClientName.Enabled = false;
+                txtClientName.Enabled = false;               
                 clientName = txtClientName.Text;
                 btnServerConnect.Enabled = true;                
                 txtMessageDisplay.Text = txtMessageDisplay.Text +">>Chat name set to: " + txtClientName.Text + Environment.NewLine;
@@ -77,26 +81,36 @@ namespace SimpleChatFormClient
 
         private void btnServerConnect_Click(object sender, EventArgs e)
         {
-
-            if (!string.IsNullOrEmpty(txtServerIP.Text) && !string.IsNullOrEmpty(txtServerPort.Text))
-            {                
-                IPAddress.TryParse(txtServerIP.Text, out ip);
-                int.TryParse(txtServerPort.Text, out port);                
+            string connection;            
+            if (!clientConnector.Connected) // if not connected - Connect
+            {
+                clientConnector.Client = new TcpClient();
+                if (!string.IsNullOrEmpty(txtServerIP.Text) && !string.IsNullOrEmpty(txtServerPort.Text))
+                {
+                    IPAddress.TryParse(txtServerIP.Text, out ip);
+                    int.TryParse(txtServerPort.Text, out port);
+                }
+                connection = clientConnector.ConnectDiconnect(ip, port, clientName);
+                clientConnector.ReceiveDataThread = new Thread(new ParameterizedThreadStart(ReceiveData));
+                clientConnector.ReceiveDataThread.Start(clientConnector.Client);                                                
+                btnMessageSend.Enabled = true;
+                txtServerIP.Enabled = false;
+                txtServerPort.Enabled = false;
+                btnServerConnect.Text = "Disconnect";
             }
-
-            var connection = clientConnector.ConnectClientInfo(client, ip, port, clientName);
-
-            // changes on the form
-            btnClientName.Enabled = false;
-            txtClientName.Enabled = false;
-            btnServerConnect.Enabled = false;
-            txtServerIP.Enabled = false;
-            txtServerPort.Enabled = false;
-            btnMessageSend.Enabled = true;
-            txtMessageDisplay.Text = txtMessageDisplay.Text + ">>"+ connection.ToString() + Environment.NewLine;            
-
-            Thread threadMessageReceive = new Thread(new ParameterizedThreadStart(ReceiveData));
-            threadMessageReceive.Start(client);                                   
+            else
+            {
+                clientConnector.ReceiveDataThread.Abort();
+                connection = clientConnector.ConnectDiconnect(ip, port, clientName);                                                
+                btnMessageSend.Enabled = false;
+                txtServerIP.Enabled = true;
+                txtServerPort.Enabled = true;
+                txtClientName.Enabled = true;
+                btnClientName.Enabled = true;
+                btnServerConnect.Text = "Connect";                
+            }
+            
+            txtMessageDisplay.Text = txtMessageDisplay.Text + ">>"+ connection.ToString() + Environment.NewLine;                        
         }
 
 
@@ -107,7 +121,7 @@ namespace SimpleChatFormClient
             {
                 if (!string.IsNullOrEmpty(txtMessageSend.Text) || !string.IsNullOrWhiteSpace(txtMessageSend.Text))                    
                 {
-                    NetworkStream networkStream = client.GetStream();                    
+                    NetworkStream networkStream = clientConnector.Client.GetStream();                    
                     byte[] buffer = Encoding.ASCII.GetBytes(clientConnector.GetName() + ": " + txtMessageSend.Text);
                     networkStream.Write(buffer, 0, buffer.Length);
                     txtMessageSend.Clear();
@@ -119,26 +133,22 @@ namespace SimpleChatFormClient
         delegate void StringArgReturningVoidDelegate(string text);
 
 
-        //public void ReturnMessage()
-        //{
-        //    while (true)
-        //    {
-        //        //Thread.Sleep(500);                
-        //        SetText("This text was set safely.");
-        //        //txtMessageDisplay.Text = txtMessageDisplay.Text + "Nesto" + Environment.NewLine;
-        //    }            
-        //}
-
         public void ReceiveData(object client)
         {
             TcpClient tcpClient = (TcpClient)client;
             NetworkStream networkStream = tcpClient.GetStream();
             byte[] receivedByteData = new byte[1024];
             int receivedDataSize;
-            while ((receivedDataSize = networkStream.Read(receivedByteData, 0, receivedByteData.Length)) > 0)
+            if (clientConnector.Connected)
             {
-                PrintReceivedData(Encoding.ASCII.GetString(receivedByteData, 0, receivedDataSize));                
+                while ((receivedDataSize = networkStream.Read(receivedByteData, 0, receivedByteData.Length)) > 0)
+                {
+                    PrintReceivedData(Encoding.ASCII.GetString(receivedByteData, 0, receivedDataSize));
+                }
             }
+            else { }
+            networkStream.Close();
+
         }
 
 
@@ -162,5 +172,6 @@ namespace SimpleChatFormClient
         {
             
         }
+
     }
 }
