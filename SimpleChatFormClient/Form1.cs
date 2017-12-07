@@ -45,16 +45,17 @@ namespace SimpleChatFormClient
         int port;
         IPAddress ip;
         string clientName;
-        ClientConnector clientConnector = new ClientConnector();            
+        ClientConnector clientConnector = new ClientConnector();
+
 
         public frmClient()
-        {
+        {            
             InitializeComponent();
             btnMessageSend.Enabled = false;
             btnServerConnect.Enabled = false;
             txtClientName.Text = "Alice";
             txtServerIP.Text = "127.0.0.1";
-            txtServerPort.Text = "8888";
+            txtServerPort.Text = "8888";            
         }
 
         private void txtMessageDisplay_TextChanged(object sender, EventArgs e)
@@ -70,7 +71,8 @@ namespace SimpleChatFormClient
                 btnClientName.Enabled = false;
                 txtClientName.Enabled = false;               
                 clientName = txtClientName.Text;
-                btnServerConnect.Enabled = true;                
+                btnServerConnect.Enabled = true;
+                btnServerConnect.Focus();
                 txtMessageDisplay.Text = txtMessageDisplay.Text +">>Chat name set to: " + txtClientName.Text + Environment.NewLine;
 
             }
@@ -92,7 +94,8 @@ namespace SimpleChatFormClient
                 }
                 connection = clientConnector.ConnectDiconnect(ip, port, clientName);
                 clientConnector.ReceiveDataThread = new Thread(new ParameterizedThreadStart(ReceiveData));
-                clientConnector.ReceiveDataThread.Start(clientConnector.Client);                                                
+                clientConnector.ReceiveDataThread.Start(clientConnector.Client);                
+                txtMessageSend.Focus();
                 btnMessageSend.Enabled = true;
                 txtServerIP.Enabled = false;
                 txtServerPort.Enabled = false;
@@ -116,7 +119,7 @@ namespace SimpleChatFormClient
 
 
         private void btnMessageSend_Click(object sender, EventArgs e)
-        {
+        {            
             if (clientConnector.Connected)
             {
                 if (!string.IsNullOrEmpty(txtMessageSend.Text) || !string.IsNullOrWhiteSpace(txtMessageSend.Text))                    
@@ -151,6 +154,16 @@ namespace SimpleChatFormClient
 
         }
 
+        private void txtMessageSend_keyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                btnMessageSend.PerformClick();
+                // Remove the unpleasent sound
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+            }
+        }
 
         private void PrintReceivedData(string text)
         {
@@ -167,11 +180,5 @@ namespace SimpleChatFormClient
                 txtMessageDisplay.Text = txtMessageDisplay.Text + text;
             }
         }
-
-        private void pictBoxLogo_Click(object sender, EventArgs e)
-        {
-            
-        }
-
     }
 }

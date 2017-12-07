@@ -112,6 +112,7 @@
             this.txtMessageSend.Name = "txtMessageSend";
             this.txtMessageSend.Size = new System.Drawing.Size(454, 20);
             this.txtMessageSend.TabIndex = 15;
+            this.txtMessageSend.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtMessageSend_keyDown);
             // 
             // btnMessageSend
             // 
@@ -153,7 +154,6 @@
             this.pictBoxLogo.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
             this.pictBoxLogo.TabIndex = 23;
             this.pictBoxLogo.TabStop = false;
-            this.pictBoxLogo.Click += new System.EventHandler(this.pictBoxLogo_Click);
             // 
             // frmClient
             // 
@@ -175,7 +175,7 @@
             this.Controls.Add(this.btnClientName);
             this.Controls.Add(this.btnServerConnect);
             this.Name = "frmClient";
-            this.Text = "Client";            
+            this.Text = "Client";
             ((System.ComponentModel.ISupportInitialize)(this.pictBoxLogo)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
