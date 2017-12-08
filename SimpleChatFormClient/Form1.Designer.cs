@@ -46,6 +46,7 @@
             // 
             // txtServerPort
             // 
+            this.txtServerPort.Cursor = System.Windows.Forms.Cursors.Default;
             this.txtServerPort.Location = new System.Drawing.Point(272, 29);
             this.txtServerPort.Name = "txtServerPort";
             this.txtServerPort.Size = new System.Drawing.Size(100, 20);
@@ -54,6 +55,7 @@
             // lblServerPort
             // 
             this.lblServerPort.AutoSize = true;
+            this.lblServerPort.Cursor = System.Windows.Forms.Cursors.Default;
             this.lblServerPort.Location = new System.Drawing.Point(206, 32);
             this.lblServerPort.Name = "lblServerPort";
             this.lblServerPort.Size = new System.Drawing.Size(63, 13);
@@ -62,6 +64,7 @@
             // 
             // txtServerIP
             // 
+            this.txtServerIP.Cursor = System.Windows.Forms.Cursors.Default;
             this.txtServerIP.Location = new System.Drawing.Point(97, 29);
             this.txtServerIP.Name = "txtServerIP";
             this.txtServerIP.Size = new System.Drawing.Size(100, 20);
@@ -70,6 +73,7 @@
             // lblName
             // 
             this.lblName.AutoSize = true;
+            this.lblName.Cursor = System.Windows.Forms.Cursors.Default;
             this.lblName.Location = new System.Drawing.Point(40, 90);
             this.lblName.Name = "lblName";
             this.lblName.Size = new System.Drawing.Size(65, 13);
@@ -79,6 +83,7 @@
             // lblServerIP
             // 
             this.lblServerIP.AutoSize = true;
+            this.lblServerIP.Cursor = System.Windows.Forms.Cursors.Default;
             this.lblServerIP.Location = new System.Drawing.Point(40, 32);
             this.lblServerIP.Name = "lblServerIP";
             this.lblServerIP.Size = new System.Drawing.Size(54, 13);
@@ -88,6 +93,7 @@
             // txtMessageDisplay
             // 
             this.txtMessageDisplay.BackColor = System.Drawing.SystemColors.ControlLightLight;
+            this.txtMessageDisplay.Cursor = System.Windows.Forms.Cursors.Help;
             this.txtMessageDisplay.Enabled = false;
             this.txtMessageDisplay.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic))), System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.txtMessageDisplay.ForeColor = System.Drawing.SystemColors.WindowText;
@@ -101,6 +107,7 @@
             // 
             // txtClientName
             // 
+            this.txtClientName.Cursor = System.Windows.Forms.Cursors.Default;
             this.txtClientName.Location = new System.Drawing.Point(111, 87);
             this.txtClientName.Name = "txtClientName";
             this.txtClientName.Size = new System.Drawing.Size(261, 20);
@@ -108,6 +115,7 @@
             // 
             // txtMessageSend
             // 
+            this.txtMessageSend.Cursor = System.Windows.Forms.Cursors.Default;
             this.txtMessageSend.Location = new System.Drawing.Point(43, 404);
             this.txtMessageSend.Name = "txtMessageSend";
             this.txtMessageSend.Size = new System.Drawing.Size(454, 20);
@@ -116,6 +124,7 @@
             // 
             // btnMessageSend
             // 
+            this.btnMessageSend.Cursor = System.Windows.Forms.Cursors.Default;
             this.btnMessageSend.Location = new System.Drawing.Point(503, 402);
             this.btnMessageSend.Name = "btnMessageSend";
             this.btnMessageSend.Size = new System.Drawing.Size(75, 23);
@@ -126,6 +135,7 @@
             // 
             // btnClientName
             // 
+            this.btnClientName.Cursor = System.Windows.Forms.Cursors.Default;
             this.btnClientName.Location = new System.Drawing.Point(378, 85);
             this.btnClientName.Name = "btnClientName";
             this.btnClientName.Size = new System.Drawing.Size(75, 23);
@@ -136,6 +146,7 @@
             // 
             // btnServerConnect
             // 
+            this.btnServerConnect.Cursor = System.Windows.Forms.Cursors.Default;
             this.btnServerConnect.Location = new System.Drawing.Point(378, 27);
             this.btnServerConnect.Name = "btnServerConnect";
             this.btnServerConnect.Size = new System.Drawing.Size(75, 23);
@@ -146,6 +157,7 @@
             // 
             // pictBoxLogo
             // 
+            this.pictBoxLogo.Cursor = System.Windows.Forms.Cursors.Default;
             this.pictBoxLogo.Image = ((System.Drawing.Image)(resources.GetObject("pictBoxLogo.Image")));
             this.pictBoxLogo.InitialImage = ((System.Drawing.Image)(resources.GetObject("pictBoxLogo.InitialImage")));
             this.pictBoxLogo.Location = new System.Drawing.Point(470, 24);
@@ -174,6 +186,7 @@
             this.Controls.Add(this.btnMessageSend);
             this.Controls.Add(this.btnClientName);
             this.Controls.Add(this.btnServerConnect);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "frmClient";
             this.Text = "Client";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.frmClient_FormClosing);
