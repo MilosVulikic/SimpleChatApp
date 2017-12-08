@@ -61,7 +61,7 @@ namespace SimpleChatApp
                 {
                     TcpClient client = ServerSocket.AcceptTcpClient();
                     clientTable.Add(clientCount, client);
-                    WriteMessageLog("Client connected!");
+                    Log.Message("Client connected!");
                     Console.WriteLine("Client connected!");
                     Thread clientThread = new Thread(HandleClients);
                     clientThread.Start(clientCount);
@@ -69,7 +69,7 @@ namespace SimpleChatApp
                 }
                 catch (Exception ex)
                 {
-                    Error.WriteErrorLog(ex);
+                    Log.Error(ex);
                 }
               
             }
@@ -97,23 +97,23 @@ namespace SimpleChatApp
                         if (bufferNoOfBytes == 0) break;
                         string data = Encoding.ASCII.GetString(buffer, 0, bufferNoOfBytes);
                         Broadcast(data);
-                        WriteMessageLog(data);
+                        Log.Message(data);
                         Console.WriteLine(data);
                     }
                     catch (Exception ex)
                     {
-                        Error.WriteErrorLog(ex);
+                        Log.Error(ex);
                     }
                 }
                 clientTable.Remove(clientID);
                 client.Client.Shutdown(SocketShutdown.Both);
-                WriteMessageLog("Client disconnected...");
+                Log.Message("Client disconnected...");
                 Console.WriteLine("Client disconnected...");
                 client.Close();
             }
             catch (Exception ex)
             {
-                Error.WriteErrorLog(ex);
+                Log.Error(ex);
             }
         }
 
@@ -131,28 +131,9 @@ namespace SimpleChatApp
             }
             catch (Exception ex)
             {
-                Error.WriteErrorLog(ex);
+                Log.Error(ex);
             }
  
-        }
-
-
-
-
-        public static void WriteMessageLog(string message)
-        {
-            StreamWriter logChatMessageSW = null;
-            try
-            {
-                logChatMessageSW = new StreamWriter(AppDomain.CurrentDomain.BaseDirectory + "\\LogFileMessages.txt", true);
-                logChatMessageSW.WriteLine("[" + DateTime.Now.ToString().Trim() + "]  " + message);
-                logChatMessageSW.Flush();
-                logChatMessageSW.Close();
-            }
-            catch (Exception ex)
-            {
-                Error.WriteErrorLog(ex);                
-            }
         }
 
 
@@ -174,22 +155,4 @@ namespace SimpleChatApp
     }
 
 
-}
-
-
-static class Error
-{
-    static int errorId = 0;
-    public static void WriteErrorLog(Exception message)
-    {
-        errorId++;
-        StreamWriter logChatMessageSW = null;
-        logChatMessageSW = new StreamWriter(AppDomain.CurrentDomain.BaseDirectory + "\\LogFileErrors.txt", true);
-        logChatMessageSW.WriteLine("[" + DateTime.Now.ToString().Trim() + "] [errorId]  Error message:  " + message.Message);
-        logChatMessageSW.WriteLine("[" + DateTime.Now.ToString().Trim() + "] [errorId]  Error Source:  " + message.Source);
-        logChatMessageSW.WriteLine("[" + DateTime.Now.ToString().Trim() + "] [errorId]  Target Site:  " + message.TargetSite);
-        logChatMessageSW.WriteLine("[" + DateTime.Now.ToString().Trim() + "] [errorId]  Stack Trace:  " + message.StackTrace);
-        logChatMessageSW.Flush();
-        logChatMessageSW.Close();
-    }
 }

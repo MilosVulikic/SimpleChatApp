@@ -42,11 +42,11 @@ namespace SimpleChatFormClient
 
     public partial class frmClient : Form
     {
+        volatile bool connectedThreadSafe = false;
         int port;
         IPAddress ip;
         string clientName;
-        ClientConnector clientConnector = new ClientConnector();
-
+        ClientConnector clientConnector = new ClientConnector();        
 
         public frmClient()
         {            
@@ -55,12 +55,12 @@ namespace SimpleChatFormClient
             btnServerConnect.Enabled = false;
             txtClientName.Text = "Alice";
             txtServerIP.Text = "127.0.0.1";
-            txtServerPort.Text = "8888";            
+            txtServerPort.Text = "8888";       
         }
 
         private void txtMessageDisplay_TextChanged(object sender, EventArgs e)
         {
-
+            
         }
 
 
@@ -73,85 +73,91 @@ namespace SimpleChatFormClient
                 clientName = txtClientName.Text;
                 btnServerConnect.Enabled = true;
                 btnServerConnect.Focus();
-                txtMessageDisplay.Text = txtMessageDisplay.Text +">>Chat name set to: " + txtClientName.Text + Environment.NewLine;
+                txtMessageDisplay.AppendText(">>Chat name set to: " + txtClientName.Text + Environment.NewLine);                
 
             }
-            else btnServerConnect.Enabled = false;
-
+            else btnServerConnect.Enabled = false;            
         }
 
 
         private void btnServerConnect_Click(object sender, EventArgs e)
         {
-            string connection;            
-            if (!clientConnector.Connected) // if not connected - Connect
+            try
             {
-                clientConnector.Client = new TcpClient();
-                if (!string.IsNullOrEmpty(txtServerIP.Text) && !string.IsNullOrEmpty(txtServerPort.Text))
+                
+                string connection;                
+                if (!clientConnector.Connected) // if not connected - Connect
                 {
-                    IPAddress.TryParse(txtServerIP.Text, out ip);
-                    int.TryParse(txtServerPort.Text, out port);
+                    connectedThreadSafe = !clientConnector.Connected;   // !false = true
+                    clientConnector.Client = new TcpClient();
+                    try
+                    {
+                        if (!string.IsNullOrEmpty(txtServerIP.Text) && !string.IsNullOrEmpty(txtServerPort.Text))
+                        {
+                            IPAddress.TryParse(txtServerIP.Text, out ip);
+                            int.TryParse(txtServerPort.Text, out port);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error(ex);
+                    }
+                    connection = clientConnector.ConnectDiconnect(ip, port, clientName);
+                    clientConnector.ReceiveDataThread = new Thread(new ParameterizedThreadStart(ReceiveData));
+                    clientConnector.ReceiveDataThread.Start(clientConnector.Client);
+                    txtMessageSend.Focus();
+                    btnMessageSend.Enabled = true;
+                    txtServerIP.Enabled = false;
+                    txtServerPort.Enabled = false;
+                    btnServerConnect.Text = "Disconnect";
                 }
-                connection = clientConnector.ConnectDiconnect(ip, port, clientName);
-                clientConnector.ReceiveDataThread = new Thread(new ParameterizedThreadStart(ReceiveData));
-                clientConnector.ReceiveDataThread.Start(clientConnector.Client);                
-                txtMessageSend.Focus();
-                btnMessageSend.Enabled = true;
-                txtServerIP.Enabled = false;
-                txtServerPort.Enabled = false;
-                btnServerConnect.Text = "Disconnect";
+                else
+                {
+                    connectedThreadSafe = !clientConnector.Connected;
+                    connection = clientConnector.ConnectDiconnect();
+                    btnMessageSend.Enabled = false;
+                    txtServerIP.Enabled = true;
+                    txtServerPort.Enabled = true;
+                    txtClientName.Enabled = true;
+                    btnClientName.Enabled = true;
+                    btnServerConnect.Text = "Connect";
+                }
+                txtMessageDisplay.AppendText(">>" + connection.ToString() + Environment.NewLine);                
             }
-            else
+            catch (Exception ex)
             {
-                clientConnector.ReceiveDataThread.Abort();
-                connection = clientConnector.ConnectDiconnect(ip, port, clientName);                                                
-                btnMessageSend.Enabled = false;
-                txtServerIP.Enabled = true;
-                txtServerPort.Enabled = true;
-                txtClientName.Enabled = true;
-                btnClientName.Enabled = true;
-                btnServerConnect.Text = "Connect";                
+                Log.Error(ex);
             }
             
-            txtMessageDisplay.Text = txtMessageDisplay.Text + ">>"+ connection.ToString() + Environment.NewLine;                        
         }
 
 
 
         private void btnMessageSend_Click(object sender, EventArgs e)
-        {            
-            if (clientConnector.Connected)
-            {
-                if (!string.IsNullOrEmpty(txtMessageSend.Text) || !string.IsNullOrWhiteSpace(txtMessageSend.Text))                    
-                {
-                    NetworkStream networkStream = clientConnector.Client.GetStream();                    
-                    byte[] buffer = Encoding.ASCII.GetBytes(clientConnector.GetName() + ": " + txtMessageSend.Text);
-                    networkStream.Write(buffer, 0, buffer.Length);
-                    txtMessageSend.Clear();
-                }
-            }                        
-        }
-        
-
-        delegate void StringArgReturningVoidDelegate(string text);
-
-
-        public void ReceiveData(object client)
         {
-            TcpClient tcpClient = (TcpClient)client;
-            NetworkStream networkStream = tcpClient.GetStream();
-            byte[] receivedByteData = new byte[1024];
-            int receivedDataSize;
-            if (clientConnector.Connected)
+            try
             {
-                while ((receivedDataSize = networkStream.Read(receivedByteData, 0, receivedByteData.Length)) > 0)
+                if (clientConnector.Connected)
                 {
-                    PrintReceivedData(Encoding.ASCII.GetString(receivedByteData, 0, receivedDataSize));
+                    if (!string.IsNullOrEmpty(txtMessageSend.Text) || !string.IsNullOrWhiteSpace(txtMessageSend.Text))
+                    {
+                        NetworkStream networkStream = clientConnector.Client.GetStream();
+                        byte[] buffer = Encoding.ASCII.GetBytes(clientConnector.GetName() + ": " + txtMessageSend.Text);
+                        networkStream.Write(buffer, 0, buffer.Length);
+                        txtMessageSend.Clear();
+                    }
                 }
             }
-            else { }
-            networkStream.Close();
+            catch (Exception ex)
+            {
+                Log.Error(ex);
+            }                       
+        }
 
+
+        private void frmClient_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            clientConnector.ConnectDiconnect();
         }
 
         private void txtMessageSend_keyDown(object sender, KeyEventArgs e)
@@ -165,6 +171,42 @@ namespace SimpleChatFormClient
             }
         }
 
+
+        delegate void StringArgReturningVoidDelegate(string text);
+
+
+
+        public void ReceiveData(object client)
+        {
+            try
+            {                
+                TcpClient tcpClient = (TcpClient)client;
+                NetworkStream networkStream = tcpClient.GetStream();  
+                byte[] receivedByteData = new byte[1024];
+                int receivedDataSize;
+                while ((receivedDataSize = networkStream.Read(receivedByteData, 0, receivedByteData.Length)) > 0 && connectedThreadSafe)
+                {
+                    try
+                    {
+                        PrintReceivedData(Encoding.ASCII.GetString(receivedByteData, 0, receivedDataSize));
+                        Log.Message(Encoding.ASCII.GetString(receivedByteData, 0, receivedDataSize));
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error(ex);
+                    }
+                }
+                networkStream.Flush();
+                networkStream.Close();                
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex);
+            }
+
+        }
+
+ 
         private void PrintReceivedData(string text)
         {
             // InvokeRequired required compares the thread ID of the  
@@ -177,8 +219,9 @@ namespace SimpleChatFormClient
             }
             else
             {
-                txtMessageDisplay.Text = txtMessageDisplay.Text + text;
+                txtMessageDisplay.AppendText( text);
             }
         }
+
     }
 }

@@ -42,38 +42,59 @@ namespace SimpleChatAppClient
             IPAddress ip = IPAddress.Parse("127.0.0.1");
             TcpClient client = new TcpClient();            
             Console.Write("Please enter your chat name: ");
-            string clientName = Console.ReadLine();            
-            ConnectingClient(client,ip,port);
-            NetworkStream networkStream = client.GetStream();
-           
-            Thread thread = new Thread(new ParameterizedThreadStart(ReceiveData));
-            thread.Start(client);   
+            Log.Message("Please enter your chat name: ");
+            string clientName = Console.ReadLine();
+            try
+            {
+                ConnectingClient(client, ip, port);
+                NetworkStream networkStream = client.GetStream();
 
-            string messageToSend;
-            while (!string.IsNullOrEmpty((messageToSend = Console.ReadLine())))
-            {               
-                byte[] buffer = Encoding.ASCII.GetBytes(clientName + ": " + messageToSend);
-                networkStream.Write(buffer, 0, buffer.Length);
+                Thread thread = new Thread(new ParameterizedThreadStart(ReceiveData));
+                thread.Start(client);
+
+                string messageToSend;
+                while (!string.IsNullOrEmpty((messageToSend = Console.ReadLine())))
+                {
+                    byte[] buffer = Encoding.ASCII.GetBytes(clientName + ": " + messageToSend);
+                    networkStream.Write(buffer, 0, buffer.Length);
+                }
+
+                client.Client.Shutdown(SocketShutdown.Send);
+                networkStream.Close();
+                client.Close();
+                Console.WriteLine("Disconnecting from server...");
+                Log.Message("Disconnecting from server...");
+                Console.ReadKey();
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex);
             }
 
-            client.Client.Shutdown(SocketShutdown.Send);            
-            networkStream.Close();
-            client.Close();
-            Console.WriteLine("Disconnecting from server...");
-            Console.ReadKey();
         }
+
 
         static void ReceiveData(object client)
         {
-            TcpClient tcpClient = (TcpClient)client;
-            NetworkStream networkStream = tcpClient.GetStream();
-            byte[] receivedByteData = new byte[1024];
-            int receivedDataSize;
-
-            while ((receivedDataSize = networkStream.Read(receivedByteData,0,receivedByteData.Length)) >0)
+            try
             {
-                Console.Write(Encoding.ASCII.GetString(receivedByteData,0,receivedDataSize));
+                TcpClient tcpClient = (TcpClient)client;
+                NetworkStream networkStream = tcpClient.GetStream();
+                byte[] receivedByteData = new byte[1024];
+                int receivedDataSize;
+
+                while ((receivedDataSize = networkStream.Read(receivedByteData, 0, receivedByteData.Length)) > 0)
+                {
+                    Console.Write(Encoding.ASCII.GetString(receivedByteData, 0, receivedDataSize));
+                    Log.Message(Encoding.ASCII.GetString(receivedByteData, 0, receivedDataSize));
+                }
             }
+            catch (Exception ex)
+            {
+
+                Log.Error(ex);
+            }
+            
 
         }
 
@@ -102,11 +123,13 @@ namespace SimpleChatAppClient
             {
                 client.Connect(ip, port);
                 Console.WriteLine("\rConected to the server: {0} , port {1}     ", ip, port);
+                Log.Message("Conected to the server: " + ip + " , port " + port + "     ");
             }
             catch (Exception ex)
             {
                 Console.WriteLine("No response from server...");
                 Console.WriteLine(ex.ToString());
+                Log.Error(ex);
             }
             
 

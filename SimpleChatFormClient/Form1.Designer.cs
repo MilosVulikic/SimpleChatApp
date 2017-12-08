@@ -176,6 +176,7 @@
             this.Controls.Add(this.btnServerConnect);
             this.Name = "frmClient";
             this.Text = "Client";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.frmClient_FormClosing);
             ((System.ComponentModel.ISupportInitialize)(this.pictBoxLogo)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
