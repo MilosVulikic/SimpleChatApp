@@ -28,7 +28,8 @@ namespace SimpleChatFormServer
         int port;
         public volatile string messageArrived;
         static readonly Dictionary<int, TcpClient> clientTable = new Dictionary<int, TcpClient>();
-        int clientCount = 1;
+        int clientCount = 1;        
+        TcpListener ServerSocket;       
 
         public FrmServer()
         {
@@ -43,37 +44,43 @@ namespace SimpleChatFormServer
             started = !started;
             if (started)
             {
-                TcpListener ServerSocket = new TcpListener(IPAddress.Any, port);                
+                txtMessageDisplay.Clear();
+                ServerSocket = new TcpListener(IPAddress.Any, port);                
                 Thread serverListenThread = new Thread(ListenForClients);
-                serverListenThread.Start(ServerSocket);
-                btnServerStart.Enabled = false;
-                txtServerIP.Enabled = false;
-                txtServerPort.Enabled = false;
-                //btnServerStart.Text = "Stop";
+                serverListenThread.Start(ServerSocket);                           
+                ToggleStartButton();
             }
             else
-            {
-                //// Server stop to be implemented               
-                // btnServerStart.Text = "Start";
+            {   
+                foreach (var item in clientTable)
+                {
+                    item.Value.GetStream().Close();
+                }
+                clientTable.Clear();    // remove all connections                
+                clientCount = 1;                
+                Log.Message("Server Stopped...");
+                PrintReceivedData("Server Stopped...");
+                ServerSocket.Stop();
+                ToggleStartButton();
             }
         }
 
         private void txtServerIP_TextChanged(object sender, EventArgs e)
         {
-            ChangeStartButton();
+            SocketInfoDependChangeStartButton();
         }
 
         
 
         private void txtServerPort_TextChanged(object sender, EventArgs e)
         {
-            ChangeStartButton();
+            SocketInfoDependChangeStartButton();
         }
 
 
         public void ListenForClients(object serverSocket)
         {
-            TcpListener tcpListener = (TcpListener)serverSocket;
+            TcpListener tcpListener = (TcpListener)serverSocket;                        
             tcpListener.Start();
             PrintReceivedData("Server started Listening...");
             while (started)
@@ -81,9 +88,9 @@ namespace SimpleChatFormServer
                 try
                 {
                     TcpClient client = tcpListener.AcceptTcpClient();
-                    clientTable.Add(clientCount, client);
-                    Log.Message("Client connected!");
-                    PrintReceivedData("Client connected!");                    
+                    clientTable.Add(clientCount, client);                    
+                    Log.Message($"Client - ClientID: {clientCount} connected!");
+                    PrintReceivedData($"Client - ClientID: {clientCount} connected!");                    
                     Thread clientThread = new Thread(HandleClients);
                     clientThread.Start(clientCount);
                     clientCount++;
@@ -93,7 +100,7 @@ namespace SimpleChatFormServer
                     Log.Error(ex);
                 }
 
-            }
+            }               
         }
 
 
@@ -106,7 +113,7 @@ namespace SimpleChatFormServer
                 TcpClient client;
                 client = clientTable[clientID];
 
-                while (true)
+                while (started)
                 {
                     try
                     {
@@ -124,11 +131,12 @@ namespace SimpleChatFormServer
                         Log.Error(ex);
                     }
                 }
+                Log.Message($"Client - ClientID: {clientID} disconnected!");
+                PrintReceivedData($"Client - ClientID: {clientID} disconnected!");
                 clientTable.Remove(clientID);
-                client.Client.Shutdown(SocketShutdown.Both);
-                Log.Message("Client disconnected...");
-                PrintReceivedData("Client disconnected...");                
-                    client.Close();
+                client.GetStream().Close();
+                client.Close();
+                client.Close();
             }
             catch (Exception ex)
             {
@@ -175,7 +183,7 @@ namespace SimpleChatFormServer
 
 
 
-            private void ChangeStartButton()
+        private void SocketInfoDependChangeStartButton()
         {
             if (!string.IsNullOrEmpty(txtServerIP.Text) || !string.IsNullOrEmpty(txtServerPort.Text))
             {
@@ -187,5 +195,23 @@ namespace SimpleChatFormServer
             }
         }
 
+        private void ToggleStartButton()
+        {                 
+            txtServerIP.Enabled = !txtServerIP.Enabled;
+            txtServerPort.Enabled = !txtServerPort.Enabled;
+            if (started)
+            {
+                btnServerStart.Text = "Stop";
+            }
+            else
+            {
+                btnServerStart.Text = "Start";
+            }
+        }
+
+        private void txtMessageDisplay_TextChanged(object sender, EventArgs e)
+        {
+            txtClientList.Text = clientTable.Count.ToString();
+        }
     }
 }

@@ -24,7 +24,7 @@
  * ***********************************************
  * To be added:     
  *      See if additional changes are needed for the threads and possible locks
- *      Creating Forms for the Client
+ *      
  *      
  *      
  * ***********************************************/

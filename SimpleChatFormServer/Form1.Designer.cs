@@ -36,6 +36,8 @@
             this.lblServerPort = new System.Windows.Forms.Label();
             this.lblServerIP = new System.Windows.Forms.Label();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.lblConnectedClients = new System.Windows.Forms.Label();
+            this.txtClientList = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -50,7 +52,8 @@
             this.txtMessageDisplay.Name = "txtMessageDisplay";
             this.txtMessageDisplay.ReadOnly = true;
             this.txtMessageDisplay.Size = new System.Drawing.Size(535, 333);
-            this.txtMessageDisplay.TabIndex = 29;            
+            this.txtMessageDisplay.TabIndex = 29;
+            this.txtMessageDisplay.TextChanged += new System.EventHandler(this.txtMessageDisplay_TextChanged);
             // 
             // btnServerStart
             // 
@@ -105,12 +108,32 @@
             this.pictureBox1.TabIndex = 46;
             this.pictureBox1.TabStop = false;
             // 
+            // lblConnectedClients
+            // 
+            this.lblConnectedClients.AutoSize = true;
+            this.lblConnectedClients.Location = new System.Drawing.Point(269, 9);
+            this.lblConnectedClients.Name = "lblConnectedClients";
+            this.lblConnectedClients.Size = new System.Drawing.Size(93, 13);
+            this.lblConnectedClients.TabIndex = 47;
+            this.lblConnectedClients.Text = "Connected Clients";
+            // 
+            // txtClientList
+            // 
+            this.txtClientList.Enabled = false;
+            this.txtClientList.Location = new System.Drawing.Point(232, 28);
+            this.txtClientList.Multiline = true;
+            this.txtClientList.Name = "txtClientList";
+            this.txtClientList.Size = new System.Drawing.Size(168, 91);
+            this.txtClientList.TabIndex = 48;
+            // 
             // FrmServer
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("$this.BackgroundImage")));
             this.ClientSize = new System.Drawing.Size(574, 470);
+            this.Controls.Add(this.txtClientList);
+            this.Controls.Add(this.lblConnectedClients);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.lblServerIP);
             this.Controls.Add(this.lblServerPort);
@@ -135,6 +158,8 @@
         private System.Windows.Forms.Label lblServerPort;
         private System.Windows.Forms.Label lblServerIP;
         private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.Label lblConnectedClients;
+        private System.Windows.Forms.TextBox txtClientList;
     }
 }
 
