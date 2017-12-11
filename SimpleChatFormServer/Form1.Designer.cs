@@ -52,8 +52,7 @@
             this.txtMessageDisplay.Name = "txtMessageDisplay";
             this.txtMessageDisplay.ReadOnly = true;
             this.txtMessageDisplay.Size = new System.Drawing.Size(535, 333);
-            this.txtMessageDisplay.TabIndex = 29;
-            this.txtMessageDisplay.TextChanged += new System.EventHandler(this.txtMessageDisplay_TextChanged);
+            this.txtMessageDisplay.TabIndex = 29;            
             // 
             // btnServerStart
             // 

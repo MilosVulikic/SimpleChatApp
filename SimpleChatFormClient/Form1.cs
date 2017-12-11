@@ -109,6 +109,7 @@ namespace SimpleChatFormClient
                     btnMessageSend.Enabled = true;
                     txtServerIP.Enabled = false;
                     txtServerPort.Enabled = false;
+                    btnClientName.Enabled = false;
                     btnServerConnect.Text = "Disconnect";
                 }
                 else

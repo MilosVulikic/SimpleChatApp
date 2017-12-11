@@ -29,7 +29,8 @@ namespace SimpleChatFormServer
         public volatile string messageArrived;
         static readonly Dictionary<int, TcpClient> clientTable = new Dictionary<int, TcpClient>();
         int clientCount = 1;        
-        TcpListener ServerSocket;       
+        TcpListener ServerSocket;
+        
 
         public FrmServer()
         {
@@ -88,9 +89,11 @@ namespace SimpleChatFormServer
                 try
                 {
                     TcpClient client = tcpListener.AcceptTcpClient();
-                    clientTable.Add(clientCount, client);                    
-                    Log.Message($"Client - ClientID: {clientCount} connected!");
-                    PrintReceivedData($"Client - ClientID: {clientCount} connected!");                    
+                    clientTable.Add(clientCount, client);
+                    Thread clientListShow = new Thread(AddClientToList);
+                    clientListShow.Start(clientCount);
+                    Log.Message($"Client - ClientID_{clientCount} connected!");
+                    PrintReceivedData($"Client - ClientID_{clientCount} connected!");                    
                     Thread clientThread = new Thread(HandleClients);
                     clientThread.Start(clientCount);
                     clientCount++;
@@ -131,9 +134,10 @@ namespace SimpleChatFormServer
                         Log.Error(ex);
                     }
                 }
-                Log.Message($"Client - ClientID: {clientID} disconnected!");
-                PrintReceivedData($"Client - ClientID: {clientID} disconnected!");
+                Log.Message($"Client - ClientID_{clientID} disconnected!");
+                PrintReceivedData($"Client - Client ID_{clientID} disconnected!");                
                 clientTable.Remove(clientID);
+                ClientAppendToList(clientID.ToString());
                 client.GetStream().Close();
                 client.Close();
                 client.Close();
@@ -181,7 +185,27 @@ namespace SimpleChatFormServer
                 }
             }
 
+        private void AddClientToList(object obj)
+        {
+            ClientAppendToList("Client ID: " + obj.ToString());
+        }
 
+        private void ClientAppendToList(string text)
+        {
+            if (txtClientList.InvokeRequired)
+            {
+                StringArgReturningVoidDelegate d = new StringArgReturningVoidDelegate(ClientAppendToList);
+                Invoke(d, new object[] { text });
+            }
+            else
+            {
+                txtClientList.Clear();
+                foreach (var item in clientTable.Keys)
+                {                    
+                    txtClientList.AppendText("Client ID_" + item.ToString() + Environment.NewLine);
+                }                
+            }
+        }
 
         private void SocketInfoDependChangeStartButton()
         {
@@ -209,9 +233,5 @@ namespace SimpleChatFormServer
             }
         }
 
-        private void txtMessageDisplay_TextChanged(object sender, EventArgs e)
-        {
-            txtClientList.Text = clientTable.Count.ToString();
-        }
     }
 }
