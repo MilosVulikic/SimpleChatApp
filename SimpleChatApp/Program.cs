@@ -44,6 +44,7 @@ namespace SimpleChatApp
     class Server
     {
         static readonly Dictionary<int, TcpClient> clientTable = new Dictionary<int,TcpClient>();
+        static readonly object _lock = new object();
 
         static void Main(string[] args)
         {
@@ -60,7 +61,7 @@ namespace SimpleChatApp
                 try
                 {
                     TcpClient client = ServerSocket.AcceptTcpClient();
-                    clientTable.Add(clientCount, client);
+                    lock (_lock) clientTable.Add(clientCount, client);
                     Log.Message("Client connected!");
                     Console.WriteLine("Client connected!");
                     Thread clientThread = new Thread(HandleClients);
@@ -85,7 +86,7 @@ namespace SimpleChatApp
             {
                 int clientID = (int)obj;
                 TcpClient client;
-                client = clientTable[clientID];
+                lock (_lock) client = clientTable[clientID];
 
                 while (true)
                 {
@@ -105,7 +106,7 @@ namespace SimpleChatApp
                         Log.Error(ex);
                     }
                 }
-                clientTable.Remove(clientID);
+                lock (_lock) clientTable.Remove(clientID);
                 client.Client.Shutdown(SocketShutdown.Both);
                 Log.Message("Client disconnected...");
                 Console.WriteLine("Client disconnected...");
@@ -123,6 +124,7 @@ namespace SimpleChatApp
             try
             {
                 byte[] buffer = Encoding.ASCII.GetBytes(data + Environment.NewLine);
+                lock (_lock)
                 foreach (TcpClient client in clientTable.Values)
                 {
                     NetworkStream stream = client.GetStream();
